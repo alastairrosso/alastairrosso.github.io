@@ -1,0 +1,1 @@
+{"version":3,"sourceRoot":"","sources":["../../_sass/main.scss"],"names":[],"mappings":"AAAA;EACI;;;AAGJ;EACI","sourcesContent":[".current {\r\n    font-weight: bold;\r\n}\r\n\r\na, a:visited, a:hover, a:active {\r\n    color: inherit;\r\n}\r\n"],"file":"styles.css"}
