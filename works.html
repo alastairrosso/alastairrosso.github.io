@@ -5,9 +5,9 @@ title: Alastairrosso - Works
 <h1>Works</h1>
 
 <ul>
-    {% for work in site.works %}
+    {% for work in site.data.works %}
     <li>
-        <h2>{{ work.work-title }}</h2>
+        <a href="{{ work.link }}"><h2>{{ work.name }}</h2></a>
     </li>
     {% endfor %}
 </ul>
