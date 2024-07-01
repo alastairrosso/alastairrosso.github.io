@@ -5,3 +5,54 @@
 a, a:visited, a:hover, a:active {
     color: inherit;
 }
+
+a:hover {
+    background-color: #700000;
+}
+
+html, body {
+    font-family: 'Segoe UI', sans-serif;
+    height: 100%;
+    margin: 0px;
+}
+
+#site-header {
+    background-color: #800000;
+    color: white;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: left;
+    padding: 25px;
+}
+
+#site-name {
+    margin: 0px;
+    order: 1;
+}
+
+a {
+    text-decoration: none;
+}
+
+#nav-bar {
+    margin-left: 100px;
+    order: 2;
+}
+
+.nav-item-first {
+
+    border-right-color: white;
+    border-right-style: solid;
+    border-right-width: 1px;
+    padding: 8px;
+    margin: 0px;
+}
+
+.nav-item-last {
+    border-left-color: white;
+    border-left-style: solid;
+    border-left-width: 1px;
+    padding: 8px;
+    margin: 0px;
+}

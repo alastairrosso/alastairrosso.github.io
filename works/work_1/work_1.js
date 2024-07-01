@@ -13,7 +13,7 @@ emptyGrid = () => Array.from({ length: cellRows }, () => Array(cellCols).fill(0)
 
 let grid = emptyGrid();
 
-ctx.fillStyle = "#800000";
+ctx.fillStyle = "#a50000";
 
 function togglePause() {
     paused = !paused;

@@ -1,8 +1,8 @@
+<div id="site-header">
+    <h1 id="site-name">Alastairrosso</h1>
 
-<h1>Alastairrosso</h1>
-
-<nav>
-    {% for item in site.data.navigation %}
-        <a href="{{ item.link }}" {% if page.url == item.link %}class="current"{% endif %}>{{ item.name }}</a>
-    {% endfor %}
-</nav>
+    <nav id="nav-bar">
+        <a href="/" class="nav-item-first">Home</a><!--
+     --><a href="/works.html" class="nav-item-last">Works</a>
+    </nav>
+</div>
