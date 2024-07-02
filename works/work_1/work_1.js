@@ -1,11 +1,13 @@
 const cnv = document.getElementById("myCanvas");
 const ctx = cnv.getContext("2d");
 
-const cellSize = 10;
-const cellRows = 80;
-const cellCols = 45;
-cnv.width = cellRows * cellSize;
-cnv.height = cellCols * cellSize;
+const workWindow = document.getElementById("work").getBoundingClientRect();
+
+const cellSize = 8;
+cnv.width = workWindow.width - (workWindow.width % cellSize);
+cnv.height = 45 * cellSize;
+const cellRows = cnv.width / cellSize;
+const cellCols = cnv.height / cellSize;
 
 let paused = true;
 
