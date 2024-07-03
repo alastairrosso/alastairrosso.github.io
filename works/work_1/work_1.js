@@ -2,6 +2,8 @@ const cnv = document.getElementById("myCanvas");
 const ctx = cnv.getContext("2d");
 
 const workWindow = document.getElementById("work").getBoundingClientRect();
+const cnvTop = cnv.getBoundingClientRect().top;
+const cnvLeft = cnv.getBoundingClientRect().left;
 
 const cellSize = 8;
 cnv.width = workWindow.width - (workWindow.width % cellSize);
@@ -14,6 +16,9 @@ let paused = true;
 emptyGrid = () => Array.from({ length: cellRows }, () => Array(cellCols).fill(0));
 
 let grid = emptyGrid();
+
+let gridX = 0;
+let gridY = 0;
 
 ctx.fillStyle = "#a50000";
 
@@ -33,6 +38,7 @@ function render() {
         }
     }
 
+    drawBrush(gridX, gridY);
 }
 
 function update() {
@@ -51,7 +57,6 @@ function simulate() {
         }
     }
 
-    // grid[1][2] = 1;
     grid = newGrid;
 }
 
@@ -93,6 +98,24 @@ document.addEventListener('keydown', event => {
             break;
     }
 });
+
+cnv.addEventListener('mousedown', event => {
+    grid[gridX / cellSize][gridY / cellSize] = 1;
+    render();
+});
+
+document.addEventListener('mousemove', event => {
+    let mouseX = Math.floor(event.x - cnvLeft);
+    let mouseY = Math.floor(event.y - cnvTop);
+    gridX = mouseX - (mouseX % cellSize);
+    gridY = mouseY - (mouseY % cellSize);
+
+    render();
+});
+
+function drawBrush(gridX, gridY) {
+    ctx.strokeRect(gridX, gridY, cellSize, cellSize);
+}
 
 // glider pattern
 grid[1][2] = 1;
