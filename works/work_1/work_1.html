@@ -2,17 +2,21 @@
 title: Cellular Automata
 ---
 
-<style>
-    #work {
-        margin: 15px;
-    }
-</style>
+<link rel="stylesheet" href="work_1.css">
 
-<div id="work">
-    <h2>(WIP) Conway's Game of Life</h2>
-    <p>Press 'p' to pause. Press 'f' to iterate one frame.</p>
+<div id="work-section">
+    <div id="work">
+        <div id="work-options">
+            <h1 id="work-title">Cellular Automata Simulator</h1>
 
-    <canvas id="myCanvas" style="border: 2px; border-style: dashed;"></canvas>
+            <!-- <p>Press 'p' to pause. Press 'f' to iterate one frame.</p> -->
 
-    <script src="work_1.js"></script>
+            <button class="work-button" onclick="togglePause();">Pause</button>
+            <button class="work-button" onclick="toggleFrame();">Frame</button>
+        </div>
+
+        <canvas id="myCanvas"></canvas>
+    </div>
 </div>
+
+<script src="work_1.js"></script>

@@ -16,6 +16,11 @@ html, body {
     margin: 0px;
 }
 
+body {
+    display: flex;
+    flex-direction: column;
+}
+
 #site-header {
     background-color: #800000;
     color: white;

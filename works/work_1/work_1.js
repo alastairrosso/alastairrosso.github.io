@@ -6,10 +6,19 @@ const cnvTop = cnv.getBoundingClientRect().top;
 const cnvLeft = cnv.getBoundingClientRect().left;
 
 const cellSize = 8;
-cnv.width = workWindow.width - (workWindow.width % cellSize);
-cnv.height = 45 * cellSize;
+
+const workOptions = document.getElementById("work-options").getBoundingClientRect();
+const canvWidth = cnv.offsetWidth;
+cnv.width = canvWidth - (canvWidth % cellSize);
+
+const siteHeader = document.getElementById("site-header").getBoundingClientRect();
+const canvHeight = cnv.offsetHeight;
+cnv.height = canvHeight - (canvHeight % cellSize); // 45 * cellSize;
+
 const cellRows = cnv.width / cellSize;
 const cellCols = cnv.height / cellSize;
+
+// window.addEventListener("resize", (event) => {});
 
 let paused = true;
 
@@ -20,13 +29,18 @@ let grid = emptyGrid();
 let gridX = 0;
 let gridY = 0;
 
-ctx.fillStyle = "#a50000";
+ctx.fillStyle = "#6bb2f0"; //"#a50000";
 
 function togglePause() {
     paused = !paused;
     if (!paused) {
         update();
     }
+}
+
+function toggleFrame() {
+    simulate();
+    render();
 }
 
 function render() {
@@ -93,8 +107,7 @@ document.addEventListener('keydown', event => {
             togglePause();
             break;
         case 'f':
-            simulate();
-            render();
+            toggleFrame();
             break;
     }
 });
@@ -114,6 +127,7 @@ document.addEventListener('mousemove', event => {
 });
 
 function drawBrush(gridX, gridY) {
+    ctx.strokeStyle = "#ffffff";
     ctx.strokeRect(gridX, gridY, cellSize, cellSize);
 }
 
