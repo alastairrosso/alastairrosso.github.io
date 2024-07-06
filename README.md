@@ -1,3 +1,3 @@
 # alastairrosso.github.io
 
-GitHub Pages site by Alastairrosso
+Static site containing some of my works and projects
