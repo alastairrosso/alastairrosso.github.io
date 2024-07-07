@@ -13,18 +13,30 @@ cnv.width = canvWidth - (canvWidth % cellSize);
 
 const siteHeader = document.getElementById("site-header").getBoundingClientRect();
 const canvHeight = cnv.offsetHeight;
-cnv.height = canvHeight - (canvHeight % cellSize); // 45 * cellSize;
+cnv.height = canvHeight - (canvHeight % cellSize);
 
-const cellRows = cnv.width / cellSize;
-const cellCols = cnv.height / cellSize;
+const gridWidth = cnv.width / cellSize;
+const gridHeight = cnv.height / cellSize;
 
 // window.addEventListener("resize", (event) => {});
 
 let paused = true;
 
-emptyGrid = () => Array.from({ length: cellRows }, () => Array(cellCols).fill(0));
-
+const gridSize = gridWidth * gridHeight;
+emptyGrid = () => new Uint8Array(gridSize);
 let grid = emptyGrid();
+
+setCell = (g, x, y, val) => {
+    x = ((x % gridWidth) + gridWidth) % gridWidth;
+    y = ((y % gridHeight) + gridHeight) % gridHeight;
+    g[y * gridWidth + x] = val;
+}
+
+getCell = (g, x, y) => {
+    x = ((x % gridWidth) + gridWidth) % gridWidth;
+    y = ((y % gridHeight) + gridHeight) % gridHeight;
+    return g[y * gridWidth + x];
+}
 
 let gridX = 0;
 let gridY = 0;
@@ -45,10 +57,10 @@ function toggleFrame() {
 
 function render() {
     ctx.clearRect(0, 0, cnv.width, cnv.height);
-    
-    for (let i = 0; i < cellRows; i++) {
-        for (let j = 0; j < cellCols; j++) {
-            drawCell(i, j, grid[i][j]);
+
+    for (let x = 0; x < gridWidth; ++x) {
+        for (let y = 0; y < gridHeight; ++y) {
+            drawCell(x, y, getCell(grid, x, y));
         }
     }
 
@@ -62,43 +74,37 @@ function update() {
     requestAnimationFrame(update);
 }
 
+/**
+ * TODO: fix this fucking boundary issue.
+ */
 function simulate() {
     const newGrid = emptyGrid();
 
-    for (let i = 0; i < cellRows; ++i) {
-        for (let j = 0; j < cellCols; ++j) {
-            newGrid[i][j] = calcCell(i, j);
+    for (let x = 0; x < gridWidth; ++x) {
+        for (let y = 0; y < gridHeight; ++y) {
+            setCell(newGrid, x, y, calcCell(x, y));
         }
     }
 
     grid = newGrid;
 }
 
-function calcCell(i, j) {
-    let neighbors = 0;
-    for (let dx = -1; dx <= 1; ++dx) {
-        for (let dy = -1; dy <= 1; ++dy) {
-            if (dx == 0 && dy == 0) continue;
-            const nx = ((i + dx) % cellRows + cellRows) % cellRows;
-            const ny = ((j + dy) % cellCols + cellCols) % cellCols;
-            if (grid[nx][ny] > 0) ++neighbors;
-        }
-    }
+function calcCell(x, y) {
+    let neighbors = getCell(grid, x-1, y-1) + getCell(grid, x, y-1) + getCell(grid, x+1, y-1)
+        + getCell(grid, x-1, y) + getCell(grid, x+1, y)
+        + getCell(grid, x-1, y+1) + getCell(grid, x, y+1) + getCell(grid, x+1,y+1);
 
-    if (grid[i][j] > 0 && (neighbors == 2 || neighbors == 3)) {
+    if (neighbors == 3 || (neighbors == 2 && getCell(grid, x, y) > 0))
         return 1;
-    } else if (grid[i][j] == 0 && neighbors == 3) {
-        return 1;
-    } else {
+    else
         return 0;
-    }
 }
 
-function drawCell(cellRow, cellCol, value) {
+function drawCell(x, y, value) {
     if (value > 0)
-        ctx.fillRect(cellRow * cellSize, cellCol * cellSize, cellSize, cellSize);
+        ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
     else
-        ctx.clearRect(cellRow * cellSize, cellCol * cellSize, cellSize, cellSize);
+        ctx.clearRect(x * cellSize, y * cellSize, cellSize, cellSize);
 }
 
 document.addEventListener('keydown', event => {
@@ -113,8 +119,9 @@ document.addEventListener('keydown', event => {
 });
 
 cnv.addEventListener('mousedown', event => {
-    grid[gridX / cellSize][gridY / cellSize] = 1;
+    setCell(grid, gridX/cellSize, gridY/cellSize, 1);
     render();
+    console.log(gridX/cellSize + " | " + gridY/cellSize);
 });
 
 document.addEventListener('mousemove', event => {
@@ -132,10 +139,10 @@ function drawBrush(gridX, gridY) {
 }
 
 // glider pattern
-grid[1][2] = 1;
-grid[2][3] = 1;
-grid[2][4] = 1;
-grid[1][4] = 1;
-grid[0][4] = 1;
+setCell(grid, 2, 2, 1);
+setCell(grid, 3, 3, 1);
+setCell(grid, 3, 4, 1);
+setCell(grid, 2, 4, 1);
+setCell(grid, 1, 4, 1);
 
 render();
