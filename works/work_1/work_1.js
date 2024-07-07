@@ -78,9 +78,6 @@ function update() {
     requestAnimationFrame(update);
 }
 
-/**
- * TODO: fix this fucking boundary issue.
- */
 function simulate() {
     const newGrid = emptyGrid();
 
