@@ -43,10 +43,14 @@ let gridY = 0;
 
 ctx.fillStyle = "#6bb2f0"; //"#a50000";
 
+const pauseButton = document.getElementById("pause-button");
 function togglePause() {
     paused = !paused;
     if (!paused) {
+        pauseButton.innerHTML = "Stop";
         update();
+    } else {
+        pauseButton.innerHTML = "Start";
     }
 }
 
