@@ -123,12 +123,25 @@ document.addEventListener('keydown', event => {
 });
 
 cnv.addEventListener('mousedown', event => {
-    setCell(grid, gridX/cellSize, gridY/cellSize, 1);
+    let cellVal = -1;
+
+    switch (event.button) {
+        case 0:
+            cellVal = 1;
+            break;
+        case 2:
+            cellVal = 0;
+            break;
+        default:
+            console.log("Unexpected mouse input: " + event.button);
+            break;
+    }
+
+    setCell(grid, gridX/cellSize, gridY/cellSize, cellVal);
     render();
-    console.log(gridX/cellSize + " | " + gridY/cellSize);
 });
 
-document.addEventListener('mousemove', event => {
+cnv.addEventListener('mousemove', event => {
     let mouseX = Math.floor(event.x - cnvLeft);
     let mouseY = Math.floor(event.y - cnvTop);
     gridX = mouseX - (mouseX % cellSize);
