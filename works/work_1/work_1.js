@@ -2,23 +2,24 @@ const cnv = document.getElementById("myCanvas");
 const ctx = cnv.getContext("2d");
 
 const workWindow = document.getElementById("work").getBoundingClientRect();
-const cnvTop = cnv.getBoundingClientRect().top;
-const cnvLeft = cnv.getBoundingClientRect().left;
+let cnvTop = cnv.getBoundingClientRect().top;
+let cnvLeft = cnv.getBoundingClientRect().left;
+const workOptions = document.getElementById("work-options").getBoundingClientRect();
 
 const cellSize = 8;
+const cnvScale = 8;
 
-const workOptions = document.getElementById("work-options").getBoundingClientRect();
-const canvWidth = cnv.offsetWidth;
-cnv.width = canvWidth - (canvWidth % cellSize);
-
-const siteHeader = document.getElementById("site-header").getBoundingClientRect();
-const canvHeight = cnv.offsetHeight;
-cnv.height = canvHeight - (canvHeight % cellSize);
+cnv.width = 16 * cnvScale * cellSize;
+cnv.height = 9 * cnvScale * cellSize;
 
 const gridWidth = cnv.width / cellSize;
 const gridHeight = cnv.height / cellSize;
 
-// window.addEventListener("resize", (event) => {});
+window.addEventListener("resize", (event) => {
+    cnvTop = cnv.offsetTop;
+    cnvLeft = cnv.offsetLeft;
+    console.log(cnv.width + " | " + cnv.height);
+});
 
 let paused = true;
 
@@ -133,17 +134,20 @@ cnv.addEventListener('mousedown', event => {
             console.log("Unexpected mouse input: " + event.button);
             break;
     }
-
+    console.log(gridX + " G " + gridY);
+    console.log((event.x - cnvLeft) + " M " + (event.y - cnvTop));
     setCell(grid, gridX/cellSize, gridY/cellSize, cellVal);
     render();
 });
 
-cnv.addEventListener('mousemove', event => {
-    let mouseX = Math.floor(event.x - cnvLeft);
-    let mouseY = Math.floor(event.y - cnvTop);
+document.addEventListener('mousemove', event => {
+    let rect = cnv.getBoundingClientRect();
+    let mouseX = Math.floor(event.clientX - rect.left);
+    let mouseY = Math.floor(event.clientY - rect.top);
     gridX = mouseX - (mouseX % cellSize);
     gridY = mouseY - (mouseY % cellSize);
-
+    // gridX = Math.floor(gridX * 1.1);
+    // gridY = Math.floor(gridY * 1.1);
     render();
 });
 
