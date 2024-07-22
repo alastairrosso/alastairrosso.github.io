@@ -1,3 +1,5 @@
-# alastairrosso.github.io
+# The Alastairrosso Portfolio
 
-Static site containing some of my works and projects
+A static site containing some of my projects (work in progress and complete)
+
+Just a place to show off some of the things I've made
