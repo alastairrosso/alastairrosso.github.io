@@ -1,25 +1,24 @@
 const cnv = document.getElementById("myCanvas");
 const ctx = cnv.getContext("2d");
 
-const workWindow = document.getElementById("work").getBoundingClientRect();
+const workWindow = document.getElementById("work-section").getBoundingClientRect();
 let cnvTop = cnv.getBoundingClientRect().top;
 let cnvLeft = cnv.getBoundingClientRect().left;
+let cnvStyleWidth = Math.floor(cnv.getBoundingClientRect().width);
+let cnvStyleHeight = Math.floor(cnv.getBoundingClientRect().height);
 const workOptions = document.getElementById("work-options").getBoundingClientRect();
 
 const cellSize = 8;
 const cnvScale = 8;
 
 cnv.width = 16 * cnvScale * cellSize;
-cnv.height = 9 * cnvScale * cellSize;
+cnv.height = workOptions.height - (workOptions.height % cellSize);
+
+console.log("Style: " + cnvStyleWidth + " | " + cnvStyleHeight);
+console.log("Canvas: " + cnv.width + " | " + cnv.height);
 
 const gridWidth = cnv.width / cellSize;
 const gridHeight = cnv.height / cellSize;
-
-window.addEventListener("resize", (event) => {
-    cnvTop = cnv.offsetTop;
-    cnvLeft = cnv.offsetLeft;
-    console.log(cnv.width + " | " + cnv.height);
-});
 
 let paused = true;
 
