@@ -44,6 +44,8 @@ let gridY = 0;
 
 ctx.fillStyle = "#6bb2f0"; //"#a50000";
 
+let mouseMode = -1;
+
 const pauseButton = document.getElementById("pause-button");
 function togglePause() {
     paused = !paused;
@@ -60,6 +62,11 @@ function toggleFrame() {
     render();
 }
 
+function clearGrid() {
+    grid = emptyGrid();
+    render();
+}
+
 function render() {
     ctx.clearRect(0, 0, cnv.width, cnv.height);
 
@@ -70,6 +77,11 @@ function render() {
     }
 
     drawBrush(gridX, gridY);
+}
+
+function drawBrush(gridX, gridY) {
+    ctx.strokeStyle = "#ffffff";
+    ctx.strokeRect(gridX, gridY, cellSize, cellSize);
 }
 
 function update() {
@@ -109,7 +121,9 @@ function drawCell(x, y, value) {
         ctx.clearRect(x * cellSize, y * cellSize, cellSize, cellSize);
 }
 
-document.addEventListener('keydown', event => {
+// Event Listeners
+
+const eventKeyDown = event => {
     switch (event.key) {
         case 'p':
             togglePause();
@@ -118,41 +132,59 @@ document.addEventListener('keydown', event => {
             toggleFrame();
             break;
     }
-});
+};
 
-cnv.addEventListener('mousedown', event => {
+const eventMouseDown = event => {
     let cellVal = -1;
 
     switch (event.button) {
         case 0:
+            mouseMode = 0;
             cellVal = 1;
             break;
         case 2:
+            mouseMode = 2;
             cellVal = 0;
             break;
         default:
+            mouseMode = -1;
             console.log("Unexpected mouse input: " + event.button);
             break;
     }
-    console.log(gridX + " G " + gridY);
-    console.log((event.x - cnvLeft) + " M " + (event.y - cnvTop));
+    
     setCell(grid, gridX/cellSize, gridY/cellSize, cellVal);
     render();
-});
+};
 
-document.addEventListener('mousemove', event => {
+const eventMouseUp = event => {
+    mouseMode = -1;
+};
+
+const eventMouseMove = event => {
     let rect = cnv.getBoundingClientRect();
     let mouseX = Math.floor(event.clientX - rect.left);
     let mouseY = Math.floor(event.clientY - rect.top);
     gridX = mouseX - (mouseX % cellSize);
     gridY = mouseY - (mouseY % cellSize);
-    render();
-});
 
-function drawBrush(gridX, gridY) {
-    ctx.strokeStyle = "#ffffff";
-    ctx.strokeRect(gridX, gridY, cellSize, cellSize);
-}
+    switch (mouseMode) {
+        case 0:
+            setCell(grid, gridX/cellSize, gridY/cellSize, 1);
+            break;
+        case 2:
+            setCell(grid, gridX/cellSize, gridY/cellSize, 0);
+            break;
+    }
+
+    render();
+};
+
+document.addEventListener('keydown', eventKeyDown);
+cnv.addEventListener('mousedown', eventMouseDown);
+cnv.addEventListener('mouseup', eventMouseUp);
+cnv.addEventListener('mousemove', eventMouseMove);
+
+
 
 // glider pattern
 setCell(grid, 2, 2, 1);
