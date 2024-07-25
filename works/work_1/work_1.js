@@ -11,11 +11,12 @@ const workOptions = document.getElementById("work-options").getBoundingClientRec
 const cellSize = 8;
 const cnvScale = 8;
 
-cnv.width = 16 * cnvScale * cellSize;
+let cnvWidth = window.innerWidth - workOptions.width;
+cnv.width = cnvWidth - (cnvWidth % cellSize);
 cnv.height = workOptions.height - (workOptions.height % cellSize);
 
-console.log("Style: " + cnvStyleWidth + " | " + cnvStyleHeight);
-console.log("Canvas: " + cnv.width + " | " + cnv.height);
+cnv.style.width = cnv.width + "px";
+cnv.style.height = cnv.height + "px";
 
 const gridWidth = cnv.width / cellSize;
 const gridHeight = cnv.height / cellSize;
@@ -145,8 +146,6 @@ document.addEventListener('mousemove', event => {
     let mouseY = Math.floor(event.clientY - rect.top);
     gridX = mouseX - (mouseX % cellSize);
     gridY = mouseY - (mouseY % cellSize);
-    // gridX = Math.floor(gridX * 1.1);
-    // gridY = Math.floor(gridY * 1.1);
     render();
 });
 
