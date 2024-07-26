@@ -44,7 +44,17 @@ let gridY = 0;
 
 ctx.fillStyle = "#6bb2f0"; //"#a50000";
 
+// Mouse & Brush Controls
+
 let mouseMode = -1;
+let brushSize = 3;
+const brushBounds = [0,0,0,0];
+const updateBrushBounds = (gX=gridX, gY=gridY) => {
+    brushBounds[0] = gX - (brushSize-1) * cellSize / 2;
+    brushBounds[1] = gY - (brushSize-1) * cellSize / 2,
+    brushBounds[2] = brushSize * cellSize,
+    brushBounds[3] = brushSize * cellSize
+};
 
 const pauseButton = document.getElementById("pause-button");
 function togglePause() {
@@ -81,7 +91,13 @@ function render() {
 
 function drawBrush(gridX, gridY) {
     ctx.strokeStyle = "#ffffff";
-    ctx.strokeRect(gridX, gridY, cellSize, cellSize);
+    updateBrushBounds(gridX, gridY);
+    ctx.strokeRect(
+        brushBounds[0],
+        brushBounds[1],
+        brushBounds[2],
+        brushBounds[3]
+    );
 }
 
 function update() {
@@ -152,7 +168,20 @@ const eventMouseDown = event => {
             break;
     }
     
-    setCell(grid, gridX/cellSize, gridY/cellSize, cellVal);
+    if (cellVal != -1) {
+        let gridI = gridX/cellSize - Math.floor(brushSize/2);
+        let gridJ = gridY/cellSize - Math.floor(brushSize/2);
+        const gridW = gridI + brushSize;
+        const gridH = gridJ + brushSize;
+
+        for (let x = gridI; x < gridW; ++x) {
+            for (let y = gridJ; y < gridH; ++y) {
+                setCell(grid, x, y, cellVal);
+            }
+        }
+    }
+
+    // setCell(grid, gridX/cellSize, gridY/cellSize, cellVal);
     render();
 };
 
@@ -167,15 +196,41 @@ const eventMouseMove = event => {
     gridX = mouseX - (mouseX % cellSize);
     gridY = mouseY - (mouseY % cellSize);
 
+    let cellVal = -1;
+
     switch (mouseMode) {
         case 0:
-            setCell(grid, gridX/cellSize, gridY/cellSize, 1);
+            cellVal = 1;
             break;
         case 2:
-            setCell(grid, gridX/cellSize, gridY/cellSize, 0);
+            cellVal = 0;
             break;
     }
 
+    if (cellVal != -1) {
+        let gridI = gridX/cellSize - Math.floor(brushSize/2);
+        let gridJ = gridY/cellSize - Math.floor(brushSize/2);
+        const gridW = gridI + brushSize;
+        const gridH = gridJ + brushSize;
+
+        for (let x = gridI; x < gridW; ++x) {
+            for (let y = gridJ; y < gridH; ++y) {
+                setCell(grid, x, y, cellVal);
+            }
+        }
+    }
+
+    render();
+};
+
+const eventWheel = event => {
+    if (event.deltaY > 0 && brushSize > 1) {
+        brushSize -= 2;
+    } else if (event.deltaY < 0 && brushSize <= 21) {
+        brushSize += 2;
+    }
+
+    updateBrushBounds();
     render();
 };
 
@@ -183,8 +238,7 @@ document.addEventListener('keydown', eventKeyDown);
 cnv.addEventListener('mousedown', eventMouseDown);
 cnv.addEventListener('mouseup', eventMouseUp);
 cnv.addEventListener('mousemove', eventMouseMove);
-
-
+cnv.addEventListener('wheel', eventWheel);
 
 // glider pattern
 setCell(grid, 2, 2, 1);
