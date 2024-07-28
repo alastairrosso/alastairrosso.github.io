@@ -9,7 +9,6 @@ let cnvStyleHeight = Math.floor(cnv.getBoundingClientRect().height);
 const workOptions = document.getElementById("work-options").getBoundingClientRect();
 
 const cellSize = 8;
-const cnvScale = 8;
 
 let cnvWidth = window.innerWidth - workOptions.width;
 cnv.width = cnvWidth - (cnvWidth % cellSize);
