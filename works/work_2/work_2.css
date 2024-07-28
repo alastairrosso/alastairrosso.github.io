@@ -1,0 +1,25 @@
+#work-section {
+    background-color: #242424;
+    display: flex;
+    height: 100%;
+    width: 100%;
+}
+
+#work-title {
+    font-size: 24px;
+    margin-top: 0px;
+    text-align: center;
+}
+
+#work-options {
+    border-right-width: 2px;
+    border-right-style: dashed;
+    height: 100%;
+    width: 250px; /*25%;*/
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+#myCanvas {
+    background-color: #121212;
+}
