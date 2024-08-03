@@ -56,14 +56,24 @@ getCellVectors = (i, j) => {
     };
 }
 
+function updateVelocity() {
+    //
+}
+
+function divergence() {
+    // divergence, outflow, incompressibility
+}
+
+function moveVelocity() {
+    // advection
+}
+
+// Simulation Loop Functions
+
 function render() {
     ctx.clearRect(0, 0, cnv.width, cnv.height);
 
     // render elements
-}
-
-function drawCell(x, y, hue) {
-    // code to draw cell
 }
 
 function simulate() {
