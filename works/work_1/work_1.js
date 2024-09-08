@@ -22,6 +22,9 @@ const gridHeight = cnv.height / cellSize;
 
 let paused = true;
 
+let ruleBirth = 0x04;   // preset to
+let ruleSurvive = 0x06; // Conway's Game of Life B3/S23
+
 const gridSize = gridWidth * gridHeight;
 emptyGrid = () => new Uint8Array(gridSize);
 let grid = emptyGrid();
@@ -123,10 +126,30 @@ function calcCell(x, y) {
         + getCell(grid, x-1, y) + getCell(grid, x+1, y)
         + getCell(grid, x-1, y+1) + getCell(grid, x, y+1) + getCell(grid, x+1,y+1);
 
-    if (neighbors == 3 || (neighbors == 2 && getCell(grid, x, y) > 0))
+    if (getBit(ruleBirth, neighbors) === 1)
+        return 1;
+    else if (getCell(grid, x, y) > 0 && getBit(ruleSurvive, neighbors) === 1)
         return 1;
     else
         return 0;
+}
+
+getBit = (mask, bitNum) => (mask >>> (bitNum-1)) & 0x1;
+
+function changeBirth(num) {
+    if (num.checked) {
+        ruleBirth |= 1 << (Number(num.value)-1);
+    } else {
+        ruleBirth &= ~(1 << (Number(num.value)-1));
+    }
+}
+
+function changeSurvive(num) {
+    if (num.checked) {
+        ruleSurvive |= 1 << (Number(num.value)-1);
+    } else {
+        ruleSurvive &= ~(1 << (Number(num.value)-1));
+    }
 }
 
 function drawCell(x, y, value) {
