@@ -24,19 +24,18 @@ origin_x = y_axis_pos;
 origin_y = x_axis_pos;
 scale = 20; // scale px = 1 graph unit
 
-a = 0;
+// example function with bounds [a, b]
+a = 1;
 b = 20;
 f = x => Math.sin(x) - 0.333*x + 10.0;
 
-drawFArea(a, b, "#004400");
-drawF(a, b, "#00cc00");
-drawVLine(a, "#cc0000");
-drawVLine(b, "#0000cc");
+// n trapezoids to draw under curve
+n = 8;
 
 function drawFArea(a, b, color) {
     ctx.fillStyle = color;
     ctx.beginPath();
-    ctx.moveTo(origin_x, origin_y + scale*-f(0));
+    ctx.moveTo(origin_x + scale*a, origin_y + scale*-f(a));
 
     for (let px = scale*a; px <= scale*b; px++) {
         ctx.lineTo(origin_x + px, origin_y - scale*f(px / scale));
@@ -50,7 +49,7 @@ function drawFArea(a, b, color) {
 function drawF(a, b, color) {
     ctx.strokeStyle = color;
     ctx.beginPath();
-    ctx.moveTo(origin_x, origin_y + scale*-f(0));
+    ctx.moveTo(origin_x + scale*a, origin_y + scale*-f(a));
 
     for (let px = scale*a; px <= scale*b; px++) {
         ctx.lineTo(origin_x + px, origin_y - scale*f(px / scale));
@@ -70,8 +69,28 @@ function drawVLine(x, color) {
     ctx.stroke();
 }
 
-function render() {
-    //
+function drawTraps(a, b, n, color) {
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.moveTo(origin_x + scale*a, origin_y + scale*-f(a));
+
+    let d = (b-a)/n;
+
+    for (let px = scale*a; px <= scale*b; px += scale*d) {
+        ctx.lineTo(origin_x + px, origin_y - scale*f(px / scale));
+    }
+
+    ctx.lineTo(origin_x + scale*b, origin_y);
+    ctx.lineTo(origin_x + scale*a, origin_y);
+    ctx.fill();
 }
 
-// render();
+function render() {
+    drawFArea(a, b, "rgba(255, 0, 0, 0.5)");
+    drawTraps(a, b, n, "rgba(0, 255, 0, 0.25)");
+    drawF(a, b, "#00cc00");
+    drawVLine(a, "#cc0000");
+    drawVLine(b, "#0000cc");
+}
+
+render();
