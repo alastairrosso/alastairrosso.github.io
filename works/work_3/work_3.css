@@ -1,0 +1,20 @@
+#work-section {
+    background-color: #242424;
+    color: white;
+    height: 100%;
+    overflow: hidden;
+}
+
+#work-title {
+    font-size: 24px;
+    margin-top: 0px;
+    text-align: center;
+}
+
+#myCanvas {
+    background-color: #121212;
+    border-right-color: white;
+    border-right-style: dashed;
+    border-right-width: 2px;
+    height: initial;
+}
