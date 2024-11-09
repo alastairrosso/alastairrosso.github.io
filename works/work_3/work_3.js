@@ -4,25 +4,30 @@ const ctx = cnv.getContext("2d");
 cnv.width = window.innerWidth;
 cnv.height = window.innerHeight - 200;
 
+const MARK_LENGTH = 10;
+const MARK_WIDTH = 1;
+const X_SCALE = 24; // X_SCALE px = 1 graph unit
+const Y_SCALE = 20; // Y_SCALE px = 1 graph unit
+const ORIGIN_X = (cnv.width / 3) - (cnv.width / 3) % X_SCALE;
+const ORIGIN_Y = (cnv.height / 2) - (cnv.height / 2) % Y_SCALE;
+const X_MIN = -ORIGIN_X / X_SCALE;
+const X_MAX = (cnv.width - ORIGIN_X) / X_SCALE;
+const Y_MIN = -ORIGIN_Y / Y_SCALE;
+const Y_MAX = (cnv.height - ORIGIN_Y) / Y_SCALE;
+
 ctx.strokeStyle = "#ffffff";
 
 // x axis
-x_axis_pos = cnv.height / 2;
 ctx.beginPath();
-ctx.moveTo(0, x_axis_pos);
-ctx.lineTo(cnv.width, x_axis_pos);
+ctx.moveTo(0, ORIGIN_Y);
+ctx.lineTo(cnv.width, ORIGIN_Y);
 ctx.stroke();
 
 // y axis
-y_axis_pos = cnv.width / 3;
 ctx.beginPath();
-ctx.moveTo(y_axis_pos, 0);
-ctx.lineTo(y_axis_pos, cnv.height);
+ctx.moveTo(ORIGIN_X, 0);
+ctx.lineTo(ORIGIN_X, cnv.height);
 ctx.stroke();
-
-origin_x = y_axis_pos;
-origin_y = x_axis_pos;
-scale = 20; // scale px = 1 graph unit
 
 // example function with bounds [a, b]
 a = 1;
@@ -85,34 +90,55 @@ function sumTrapArea(f, a, b, n) {
 
 // rendering
 
+function drawMark(value, yAxis) {
+    if (!yAxis) {
+        ctx.fillRect(ORIGIN_X + value, ORIGIN_Y - MARK_LENGTH/2, MARK_WIDTH, MARK_LENGTH);
+    } else {
+        ctx.fillRect(ORIGIN_X - MARK_LENGTH/2, ORIGIN_Y - value, MARK_LENGTH, MARK_WIDTH);
+    }
+}
+
+function drawMarks(color) {
+    ctx.fillStyle = color;
+    // x-axis marks
+    for (let i = X_MIN; i <= X_MAX; i++) {
+        drawMark(i*X_SCALE, false);
+    }
+
+    // y-axis marks
+    for (let i = Y_MIN; i <= Y_MAX; i++) {
+        drawMark(i*Y_SCALE, true);
+    }
+}
+
 function drawCentroid(x_bar, y_bar, color) {
     ctx.fillStyle = color;
-    let px_bar = origin_x + scale*x_bar;
-    let py_bar = origin_y - scale*y_bar;
+    let px_bar = ORIGIN_X + X_SCALE*x_bar;
+    let py_bar = ORIGIN_Y - Y_SCALE*y_bar;
     ctx.fillRect(px_bar-4, py_bar-4, 8, 8);
 }
 
 function drawFArea(a, b, color) {
     ctx.fillStyle = color;
     ctx.beginPath();
-    ctx.moveTo(origin_x + scale*a, origin_y + scale*-f(a));
+    ctx.moveTo(ORIGIN_X + X_SCALE*a, ORIGIN_Y + Y_SCALE*-f(a));
 
-    for (let px = scale*a; px <= scale*b; px++) {
-        ctx.lineTo(origin_x + px, origin_y - scale*f(px / scale));
+    for (let px = X_SCALE*a; px <= X_SCALE*b; px++) {
+        ctx.lineTo(ORIGIN_X + px, ORIGIN_Y - Y_SCALE*f(px / X_SCALE));
     }
 
-    ctx.lineTo(origin_x + scale*b, origin_y);
-    ctx.lineTo(origin_x + scale*a, origin_y);
+    ctx.lineTo(ORIGIN_X + X_SCALE*b, ORIGIN_Y);
+    ctx.lineTo(ORIGIN_X + X_SCALE*a, ORIGIN_Y);
     ctx.fill();
 }
 
 function drawF(a, b, color) {
     ctx.strokeStyle = color;
     ctx.beginPath();
-    ctx.moveTo(origin_x + scale*a, origin_y + scale*-f(a));
+    ctx.moveTo(ORIGIN_X + X_SCALE*a, ORIGIN_Y + Y_SCALE*-f(a));
 
-    for (let px = scale*a; px <= scale*b; px++) {
-        ctx.lineTo(origin_x + px, origin_y - scale*f(px / scale));
+    for (let px = X_SCALE*a; px <= X_SCALE*b; px++) {
+        ctx.lineTo(ORIGIN_X + px, ORIGIN_Y - Y_SCALE*f(px / X_SCALE));
     }
 
     ctx.lineWidth = 5;
@@ -123,29 +149,31 @@ function drawF(a, b, color) {
 function drawVLine(x, color) {
     ctx.strokeStyle = color;
     ctx.beginPath();
-    ctx.moveTo(origin_x + scale*x, 0);
+    ctx.moveTo(ORIGIN_X + X_SCALE*x, 0);
     ctx.lineWidth = 5;
-    ctx.lineTo(origin_x + scale*x, cnv.height);
+    ctx.lineTo(ORIGIN_X + X_SCALE*x, cnv.height);
     ctx.stroke();
 }
 
 function drawTraps(a, b, n, color) {
     ctx.fillStyle = color;
     ctx.beginPath();
-    ctx.moveTo(origin_x + scale*a, origin_y + scale*-f(a));
+    ctx.moveTo(ORIGIN_X + X_SCALE*a, ORIGIN_Y + Y_SCALE*-f(a));
 
     let d = (b-a)/n;
 
-    for (let px = scale*a; px <= scale*b; px += scale*d) {
-        ctx.lineTo(origin_x + px, origin_y - scale*f(px / scale));
+    for (let px = X_SCALE*a; px <= X_SCALE*b; px += X_SCALE*d) {
+        ctx.lineTo(ORIGIN_X + px, ORIGIN_Y - Y_SCALE*f(px / X_SCALE));
     }
 
-    ctx.lineTo(origin_x + scale*b, origin_y);
-    ctx.lineTo(origin_x + scale*a, origin_y);
+    ctx.lineTo(ORIGIN_X + X_SCALE*b, ORIGIN_Y);
+    ctx.lineTo(ORIGIN_X + X_SCALE*a, ORIGIN_Y);
     ctx.fill();
 }
 
 function render() {
+    drawMarks("#ffffff");
+
     drawFArea(a, b, "rgba(255, 0, 0, 0.5)");
     drawTraps(a, b, n, "rgba(0, 255, 0, 0.25)");
     drawF(a, b, "#00cc00");
