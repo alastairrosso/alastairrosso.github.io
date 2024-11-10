@@ -11,10 +11,30 @@
     text-align: center;
 }
 
+#work-display {
+    display: inline-block;
+    height: 100%;
+}
+
+#work-ui {
+    border-top-color: white;
+    border-top-style: solid;
+    border-top-width: 2px;
+    float: left;
+    height: 100%;
+    padding: 10px;
+    width: 240px;
+}
+
 #myCanvas {
     background-color: #121212;
-    border-right-color: white;
-    border-right-style: dashed;
-    border-right-width: 2px;
     height: initial;
+    float: right;
+    width: initial;
+}
+
+#equation {
+    background-color: white;
+    color: black;
+    width: 70%;
 }

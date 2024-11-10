@@ -1,8 +1,10 @@
 const cnv = document.getElementById("myCanvas");
 const ctx = cnv.getContext("2d");
+const ui = document.getElementById("work-ui").getBoundingClientRect();
 
-cnv.width = window.innerWidth;
-cnv.height = window.innerHeight - 200;
+cnv.width = window.innerWidth - ui.width;
+// cnv.height = window.innerHeight - 200;
+cnv.height = ui.height;
 
 const MARK_LENGTH = 10;
 const MARK_WIDTH = 1;
@@ -15,28 +17,19 @@ const X_MAX = (cnv.width - ORIGIN_X) / X_SCALE;
 const Y_MIN = -ORIGIN_Y / Y_SCALE;
 const Y_MAX = (cnv.height - ORIGIN_Y) / Y_SCALE;
 
-ctx.strokeStyle = "#ffffff";
-
-// x axis
-ctx.beginPath();
-ctx.moveTo(0, ORIGIN_Y);
-ctx.lineTo(cnv.width, ORIGIN_Y);
-ctx.stroke();
-
-// y axis
-ctx.beginPath();
-ctx.moveTo(ORIGIN_X, 0);
-ctx.lineTo(ORIGIN_X, cnv.height);
-ctx.stroke();
-
 // example function with bounds [a, b]
 a = 1;
 b = 20;
-f = x => Math.sin(x) - 0.333*x + 10.0;
+f = x => 1.5*Math.sin(x) - (1/3)*x + 10.0;
 // f = x => 10*Math.pow(Math.E, -0.07*x);
 
 // n trapezoids to draw under curve
-n = 8;
+const n_value = document.getElementById("n-value");
+n = n_value.value = 8; // default value
+n_value.addEventListener("input", (e) => {
+    n = e.target.value;
+    update();
+});
 
 // centroid calculation
 
@@ -89,6 +82,23 @@ function sumTrapArea(f, a, b, n) {
 }
 
 // rendering
+
+function drawAxes() {
+    ctx.strokeStyle = "#ffffff";
+    ctx.lineWidth = 1;
+
+    // x axis
+    ctx.beginPath();
+    ctx.moveTo(0, ORIGIN_Y);
+    ctx.lineTo(cnv.width, ORIGIN_Y);
+    ctx.stroke();
+
+    // y axis
+    ctx.beginPath();
+    ctx.moveTo(ORIGIN_X, 0);
+    ctx.lineTo(ORIGIN_X, cnv.height);
+    ctx.stroke();
+}
 
 function drawMark(value, yAxis) {
     if (!yAxis) {
@@ -162,7 +172,8 @@ function drawTraps(a, b, n, color) {
 
     let d = (b-a)/n;
 
-    for (let px = X_SCALE*a; px <= X_SCALE*b; px += X_SCALE*d) {
+    // +0.005 to account for floating point error - does not affect area calcs
+    for (let px = X_SCALE*a; px <= X_SCALE*b + 0.005; px += X_SCALE*d) {
         ctx.lineTo(ORIGIN_X + px, ORIGIN_Y - Y_SCALE*f(px / X_SCALE));
     }
 
@@ -172,6 +183,7 @@ function drawTraps(a, b, n, color) {
 }
 
 function render() {
+    drawAxes();
     drawMarks("#ffffff");
 
     drawFArea(a, b, "rgba(255, 0, 0, 0.5)");
@@ -184,4 +196,9 @@ function render() {
     drawCentroid(cent[0], cent[1], "#ffffff");
 }
 
-render();
+function update() {
+    ctx.clearRect(0, 0, cnv.width, cnv.height);
+    requestAnimationFrame(render);
+}
+
+update();
