@@ -17,17 +17,36 @@ const X_MAX = (cnv.width - ORIGIN_X) / X_SCALE;
 const Y_MIN = -ORIGIN_Y / Y_SCALE;
 const Y_MAX = (cnv.height - ORIGIN_Y) / Y_SCALE;
 
-// example function with bounds [a, b]
-a = 1;
-b = 20;
+// example function
 f = x => 1.5*Math.sin(x) - (1/3)*x + 10.0;
 // f = x => 10*Math.pow(Math.E, -0.07*x);
 
 // n trapezoids to draw under curve
 const n_value = document.getElementById("n-value");
-n = n_value.value = 8; // default value
+n = n_value.valueAsNumber = 8; // default value
 n_value.addEventListener("input", (e) => {
-    n = e.target.value;
+    n = e.target.valueAsNumber;
+    update();
+});
+
+// function bounds [a, b]
+const a_value = document.getElementById("a-value");
+a = a_value.valueAsNumber = 1;
+const b_value = document.getElementById("b-value");
+b = b_value.valueAsNumber = 20;
+
+a_value.addEventListener("input", (e) => {
+    if (e.target.valueAsNumber < b)
+        a = e.target.valueAsNumber;
+    else
+        a_value.valueAsNumber = a;
+    update();
+});
+b_value.addEventListener("input", (e) => {
+    if (a < e.target.valueAsNumber)
+        b = e.target.valueAsNumber;
+    else
+        b_value.valueAsNumber = b;
     update();
 });
 
@@ -128,7 +147,7 @@ function drawCentroid(x_bar, y_bar, color) {
     ctx.fillRect(px_bar-4, py_bar-4, 8, 8);
 }
 
-function drawFArea(a, b, color) {
+function drawFArea(f, a, b, color) {
     ctx.fillStyle = color;
     ctx.beginPath();
     ctx.moveTo(ORIGIN_X + X_SCALE*a, ORIGIN_Y + Y_SCALE*-f(a));
@@ -142,7 +161,7 @@ function drawFArea(a, b, color) {
     ctx.fill();
 }
 
-function drawF(a, b, color) {
+function drawF(f, a, b, color) {
     ctx.strokeStyle = color;
     ctx.beginPath();
     ctx.moveTo(ORIGIN_X + X_SCALE*a, ORIGIN_Y + Y_SCALE*-f(a));
@@ -156,16 +175,16 @@ function drawF(a, b, color) {
     ctx.stroke();
 }
 
-function drawVLine(x, color) {
+function drawVLine(f, x, color) {
     ctx.strokeStyle = color;
     ctx.beginPath();
-    ctx.moveTo(ORIGIN_X + X_SCALE*x, 0);
+    ctx.moveTo(ORIGIN_X + X_SCALE*x, ORIGIN_Y);
     ctx.lineWidth = 5;
-    ctx.lineTo(ORIGIN_X + X_SCALE*x, cnv.height);
+    ctx.lineTo(ORIGIN_X + X_SCALE*x, ORIGIN_Y - Y_SCALE*f(x));
     ctx.stroke();
 }
 
-function drawTraps(a, b, n, color) {
+function drawTraps(f, a, b, n, color) {
     ctx.fillStyle = color;
     ctx.beginPath();
     ctx.moveTo(ORIGIN_X + X_SCALE*a, ORIGIN_Y + Y_SCALE*-f(a));
@@ -186,11 +205,11 @@ function render() {
     drawAxes();
     drawMarks("#ffffff");
 
-    drawFArea(a, b, "rgba(255, 0, 0, 0.5)");
-    drawTraps(a, b, n, "rgba(0, 255, 0, 0.25)");
-    drawF(a, b, "#00cc00");
-    drawVLine(a, "#cc0000");
-    drawVLine(b, "#0000cc");
+    drawFArea(f, a, b, "rgba(255, 0, 0, 0.5)");
+    drawTraps(f, a, b, n, "rgba(0, 255, 0, 0.25)");
+    drawF(f, a, b, "#00cc00");
+    drawVLine(f, a, "#cc0000");
+    drawVLine(f, b, "#0000cc");
 
     let cent = centroid(f, a, b, n);
     drawCentroid(cent[0], cent[1], "#ffffff");

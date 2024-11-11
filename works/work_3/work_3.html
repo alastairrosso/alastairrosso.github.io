@@ -16,7 +16,13 @@ title: Centroid Calculation via Trapezoids
             <br>
 
             <label for="n-value"><span id="n-equals">n=</span></label>
-            <input type="number" id="n-value" name="n-value" min="1" max="100" />
+            <input type="number" id="n-value" name="n-value" min="1" max="100" step="1" />
+            <br>
+            <label for="a-value"><span id="a-equals">a=</span></label>
+            <input type="number" id="a-value" name="a-value" />
+            <br>
+            <label for="b-value"><span id="b-equals">b=</span></label>
+            <input type="number" id="b-value" name="b-value" />
         </div>
         <canvas id="myCanvas" oncontextmenu="return false;"></canvas>
     </div>
@@ -42,6 +48,10 @@ title: Centroid Calculation via Trapezoids
     MQ.StaticMath(function_x_equals);
     const n_equals = document.getElementById("n-equals");
     MQ.StaticMath(n_equals);
+    const a_equals = document.getElementById("a-equals");
+    MQ.StaticMath(a_equals);
+    const b_equals = document.getElementById("b-equals");
+    MQ.StaticMath(b_equals);
 </script>
 
 <script src="work_3.js"></script>
