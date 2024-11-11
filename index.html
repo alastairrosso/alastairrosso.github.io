@@ -2,4 +2,58 @@
 title: Alastairrosso - Home
 ---
 
-<h1>Home</h1>
+<style>
+    #home-section {
+        background-color: #242424;
+        color: white;
+        height: 100%;
+        padding-left: 50px;
+    }
+
+    ul > li {
+        display: inline-block;
+    }
+
+    li {
+        list-style: none;
+        margin: 10px;
+        width: min-content;
+    }
+
+    .work-listing {
+        border-color: white;
+        border-radius: 15px;
+        border-style: solid;
+        border-width: 2px;
+        color: white;
+        font-weight: bold;
+        padding-bottom: 10px;
+        text-align: center;
+    }
+
+    .work-listing:hover {
+        background-color: #484848;
+    }
+
+    .work-image {
+        border-top-left-radius: 15px;
+        border-top-right-radius: 15px;
+    }
+</style>
+
+<div id="home-section">
+    <h1>Welcome!</h1>
+    <h3>Check out some of my works (and works in progress):</h3>
+    <ul>
+        {% for work in site.data.works %}
+        <li>
+            <a href="{{ work.link }}">
+                <div class="work-listing">
+                    <img src="{{ work.image }}" class="work-image" width="350" />
+                    <span>{{ work.name }}</span>
+                </div>
+            </a>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
