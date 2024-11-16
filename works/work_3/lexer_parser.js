@@ -1,7 +1,3 @@
-function testLP() {
-    console.log("Message received");
-}
-
 const LEX_DIG_0 = 0;
 const LEX_DIG_1 = 1;
 const LEX_DIG_2 = 2;
