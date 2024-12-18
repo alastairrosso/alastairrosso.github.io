@@ -8,8 +8,8 @@ cnv.height = ui.height;
 
 const MARK_LENGTH = 10;
 const MARK_WIDTH = 1;
-const X_SCALE = 24; // X_SCALE px = 1 graph unit
-const Y_SCALE = 20; // Y_SCALE px = 1 graph unit
+X_SCALE = 24; // X_SCALE px = 1 graph unit
+Y_SCALE = 20; // Y_SCALE px = 1 graph unit
 ORIGIN_X = (cnv.width / 3) - (cnv.width / 3) % X_SCALE;
 ORIGIN_Y = (cnv.height / 2) - (cnv.height / 2) % Y_SCALE;
 X_MIN = -ORIGIN_X / X_SCALE;
@@ -60,7 +60,7 @@ cnv.addEventListener("mousedown", (e) => {
     prevMouseX = e.offsetX;
     prevMouseY = e.offsetY;
 });
-cnv.addEventListener("mouseup",   (e) => cnvMouseDown = false);
+cnv.addEventListener("mouseup",   (_) => cnvMouseDown = false);
 cnv.addEventListener("mousemove", (e) => {
     if (cnvMouseDown) {
         let currX = e.offsetX;
@@ -76,6 +76,20 @@ cnv.addEventListener("mousemove", (e) => {
         update();
         prevMouseX = currX;
         prevMouseY = currY;
+    }
+});
+cnv.addEventListener("wheel", (e) => {
+    // currently zooms in/out on origin
+    const ZOOM_SPEED = 1;
+    let zoomSign = Math.sign(e.deltaY);
+    if (X_SCALE - ZOOM_SPEED*zoomSign != 0 && Y_SCALE - ZOOM_SPEED*zoomSign != 0) {
+        X_SCALE -= ZOOM_SPEED*zoomSign;
+        Y_SCALE -= ZOOM_SPEED*zoomSign;
+        X_MIN = -ORIGIN_X / X_SCALE;
+        X_MAX = (cnv.width - ORIGIN_X) / X_SCALE;
+        Y_MIN = -ORIGIN_Y / Y_SCALE;
+        Y_MAX = (cnv.height - ORIGIN_Y) / Y_SCALE;
+        update();
     }
 });
 
