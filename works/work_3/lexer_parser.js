@@ -47,7 +47,7 @@ function lexer(eqString) {
             case '7':
             case '8':
             case '9':
-                tokens.push(ch - 0);
+                tokens.push(ch - '0');
                 break;
             case '+':
                 tokens.push(LEX_PLUS);

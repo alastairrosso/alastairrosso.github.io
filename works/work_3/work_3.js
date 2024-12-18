@@ -10,12 +10,12 @@ const MARK_LENGTH = 10;
 const MARK_WIDTH = 1;
 const X_SCALE = 24; // X_SCALE px = 1 graph unit
 const Y_SCALE = 20; // Y_SCALE px = 1 graph unit
-const ORIGIN_X = (cnv.width / 3) - (cnv.width / 3) % X_SCALE;
-const ORIGIN_Y = (cnv.height / 2) - (cnv.height / 2) % Y_SCALE;
-const X_MIN = -ORIGIN_X / X_SCALE;
-const X_MAX = (cnv.width - ORIGIN_X) / X_SCALE;
-const Y_MIN = -ORIGIN_Y / Y_SCALE;
-const Y_MAX = (cnv.height - ORIGIN_Y) / Y_SCALE;
+ORIGIN_X = (cnv.width / 3) - (cnv.width / 3) % X_SCALE;
+ORIGIN_Y = (cnv.height / 2) - (cnv.height / 2) % Y_SCALE;
+X_MIN = -ORIGIN_X / X_SCALE;
+X_MAX = (cnv.width - ORIGIN_X) / X_SCALE;
+Y_MIN = -ORIGIN_Y / Y_SCALE;
+Y_MAX = (cnv.height - ORIGIN_Y) / Y_SCALE;
 
 // example function
 f = x => 1.5*Math.sin(x) - (1/3)*x + 10.0;
@@ -48,6 +48,35 @@ b_value.addEventListener("input", (e) => {
     else
         b_value.valueAsNumber = b;
     update();
+});
+
+// canvas viewport
+
+cnvMouseDown = false;
+prevMouseX = ORIGIN_X;
+prevMouseY = ORIGIN_Y;
+cnv.addEventListener("mousedown", (e) => {
+    cnvMouseDown = true;
+    prevMouseX = e.offsetX;
+    prevMouseY = e.offsetY;
+});
+cnv.addEventListener("mouseup",   (e) => cnvMouseDown = false);
+cnv.addEventListener("mousemove", (e) => {
+    if (cnvMouseDown) {
+        let currX = e.offsetX;
+        let currY = e.offsetY;
+        let deltaX = currX - prevMouseX;
+        let deltaY = currY - prevMouseY;
+        ORIGIN_X += deltaX;
+        ORIGIN_Y += deltaY;
+        X_MIN = -ORIGIN_X / X_SCALE;
+        X_MAX = (cnv.width - ORIGIN_X) / X_SCALE;
+        Y_MIN = -ORIGIN_Y / Y_SCALE;
+        Y_MAX = (cnv.height - ORIGIN_Y) / Y_SCALE;
+        update();
+        prevMouseX = currX;
+        prevMouseY = currY;
+    }
 });
 
 // centroid calculation
@@ -129,14 +158,25 @@ function drawMark(value, yAxis) {
 
 function drawMarks(color) {
     ctx.fillStyle = color;
-    // x-axis marks
-    for (let i = X_MIN; i <= X_MAX; i++) {
+    
+    // x-axis marks, negative
+    for (let i = 0; i >= X_MIN; --i) {
+        drawMark(i*X_SCALE, false);
+    }
+    
+    // x-axis marks, positive
+    for (let i = 0; i <= X_MAX; ++i) {
         drawMark(i*X_SCALE, false);
     }
 
-    // y-axis marks
-    for (let i = Y_MIN; i <= Y_MAX; i++) {
-        drawMark(i*Y_SCALE, true);
+    // y-axis marks, negative
+    for (let i = 0; i >= Y_MIN; --i) {
+        drawMark(-i*Y_SCALE, true);
+    }
+    
+    // y-axis marks, positive
+    for (let i = 0; i <= Y_MAX; ++i) {
+        drawMark(-i*Y_SCALE, true);
     }
 }
 
