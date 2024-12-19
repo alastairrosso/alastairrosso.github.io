@@ -82,9 +82,19 @@ cnv.addEventListener("wheel", (e) => {
     // currently zooms in/out on origin
     const ZOOM_SPEED = 1;
     let zoomSign = Math.sign(e.deltaY);
-    if (X_SCALE - ZOOM_SPEED*zoomSign != 0 && Y_SCALE - ZOOM_SPEED*zoomSign != 0) {
-        X_SCALE -= ZOOM_SPEED*zoomSign;
-        Y_SCALE -= ZOOM_SPEED*zoomSign;
+    let x_scale_new = X_SCALE - ZOOM_SPEED*zoomSign;
+    let y_scale_new = Y_SCALE - ZOOM_SPEED*zoomSign;
+    let currX = e.offsetX;
+    let currY = e.offsetY;
+    if (x_scale_new != 0 && y_scale_new != 0) {
+        let deltaXnew = ((currX - ORIGIN_X) / X_SCALE) * x_scale_new;
+        let deltaYnew = ((currY - ORIGIN_Y) / Y_SCALE) * y_scale_new;
+
+        X_SCALE = x_scale_new;
+        Y_SCALE = y_scale_new;
+
+        ORIGIN_X = currX - deltaXnew;
+        ORIGIN_Y = currY - deltaYnew;
         X_MIN = -ORIGIN_X / X_SCALE;
         X_MAX = (cnv.width - ORIGIN_X) / X_SCALE;
         Y_MIN = -ORIGIN_Y / Y_SCALE;
