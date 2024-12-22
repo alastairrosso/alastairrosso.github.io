@@ -8,16 +8,13 @@ cnv.height = ui.height;
 
 const MARK_LENGTH = 10;
 const MARK_WIDTH = 1;
-X_SCALE = 20; // X_SCALE px = 1 graph unit
-Y_SCALE = 20; // Y_SCALE px = 1 graph unit
-X_MARKS = 1; // will be used for scaling axis marks in future
-Y_MARKS = 1; // will be used for scaling axis marks in future
+BASE_SCALE = 20;
+X_SCALE = BASE_SCALE; // X_SCALE px = 1 graph unit
+Y_SCALE = BASE_SCALE; // Y_SCALE px = 1 graph unit
+X_MARKS = BASE_SCALE;
+Y_MARKS = BASE_SCALE;
 ORIGIN_X = (cnv.width / 3) - (cnv.width / 3) % X_SCALE;
 ORIGIN_Y = (cnv.height / 2) - (cnv.height / 2) % Y_SCALE;
-X_MIN = -ORIGIN_X / X_SCALE;
-X_MAX = (cnv.width - ORIGIN_X) / X_SCALE;
-Y_MIN = -ORIGIN_Y / Y_SCALE;
-Y_MAX = (cnv.height - ORIGIN_Y) / Y_SCALE;
 
 // example function
 f = x => 1.5*Math.sin(x) - (1/3)*x + 10.0;
@@ -71,10 +68,6 @@ cnv.addEventListener("mousemove", (e) => {
         let deltaY = currY - prevMouseY;
         ORIGIN_X += deltaX;
         ORIGIN_Y += deltaY;
-        X_MIN = -ORIGIN_X / X_MARKS;
-        X_MAX = (cnv.width - ORIGIN_X) / X_MARKS;
-        Y_MIN = -ORIGIN_Y / Y_MARKS;
-        Y_MAX = (cnv.height - ORIGIN_Y) / Y_MARKS;
         update();
         prevMouseX = currX;
         prevMouseY = currY;
@@ -97,16 +90,22 @@ cnv.addEventListener("wheel", (e) => {
         X_SCALE = x_scale_new;
         Y_SCALE = y_scale_new;
 
+        X_MARKS *= Math.pow(ZOOM_SPEED, -zoomSign);
+        if (X_MARKS > BASE_SCALE + (BASE_SCALE / 2))
+            X_MARKS /= 2;
+        else if (X_MARKS < BASE_SCALE - (BASE_SCALE / 2))
+            X_MARKS *= 2;
+        Y_MARKS *= Math.pow(ZOOM_SPEED, -zoomSign);
+        if (Y_MARKS > BASE_SCALE + (BASE_SCALE / 2))
+            Y_MARKS /= 2;
+        else if (Y_MARKS < BASE_SCALE - (BASE_SCALE / 2))
+            Y_MARKS *= 2;
+
         ORIGIN_X = currX - deltaXnew;
         ORIGIN_Y = currY - deltaYnew;
-        X_MIN = -ORIGIN_X / X_MARKS;
-        X_MAX = (cnv.width - ORIGIN_X) / X_MARKS;
-        Y_MIN = -ORIGIN_Y / Y_MARKS;
-        Y_MAX = (cnv.height - ORIGIN_Y) / Y_MARKS;
         
         update();
     }
-    console.log(X_SCALE + ", " + Y_SCALE);
 });
 
 // centroid calculation
@@ -182,7 +181,7 @@ function drawMark(value, yAxis) {
     if (!yAxis) {
         ctx.fillRect(ORIGIN_X + value, ORIGIN_Y - MARK_LENGTH/2, MARK_WIDTH, MARK_LENGTH);
     } else {
-        ctx.fillRect(ORIGIN_X - MARK_LENGTH/2, ORIGIN_Y - value, MARK_LENGTH, MARK_WIDTH);
+        ctx.fillRect(ORIGIN_X - MARK_LENGTH/2, ORIGIN_Y + value, MARK_LENGTH, MARK_WIDTH);
     }
 }
 
@@ -190,23 +189,23 @@ function drawMarks(color) {
     ctx.fillStyle = color;
     
     // x-axis marks, negative
-    for (let i = -1; i >= X_MIN; --i) {
-        drawMark(i*X_SCALE*X_MARKS, false);
+    for (let i = -X_MARKS; i >= -ORIGIN_X; i -= X_MARKS) {
+        drawMark(i, false);
     }
     
     // x-axis marks, positive
-    for (let i = 1; i <= X_MAX; ++i) {
-        drawMark(i*X_SCALE*X_MARKS, false);
+    for (let i = X_MARKS; i <= cnv.width - ORIGIN_X; i += X_MARKS) {
+        drawMark(i, false);
     }
 
-    // y-axis marks, negative
-    for (let i = -1; i >= Y_MIN; --i) {
-        drawMark(-i*Y_SCALE*Y_MARKS, true);
+    // y-axis marks, positive (on graph)
+    for (let i = -Y_MARKS; i >= -ORIGIN_Y; i -= Y_MARKS) {
+        drawMark(i, true);
     }
     
-    // y-axis marks, positive
-    for (let i = 1; i <= Y_MAX; ++i) {
-        drawMark(-i*Y_SCALE*Y_MARKS, true);
+    // y-axis marks, negative (on graph)
+    for (let i = Y_MARKS; i <= cnv.height - ORIGIN_Y; i += Y_MARKS) {
+        drawMark(i, true);
     }
 }
 
