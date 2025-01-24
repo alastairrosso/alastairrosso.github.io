@@ -1,5 +1,6 @@
 const cnv = document.getElementById("myCanvas");
 const ctx = cnv.getContext("2d");
+const workOptions = document.getElementById("work-options").getBoundingClientRect();
 
 const cellSize = 10;
 
@@ -17,67 +18,59 @@ let paused = true;
 emptyGrid = size => new Uint32Array(size);
 
 // Grid
+// NOTE: when displayed, grid uses non-inverted y-axis (origin in bottom-left)
 const gridSize = gridWidth * gridHeight;
 let grid = emptyGrid(gridSize);
 
-// Vectors for staggered grid
-const uGridSize = (gridWidth + 1) * gridHeight;
-const vGridSize = (gridWidth + 1) * gridHeight;
-let uGrid = emptyGrid(uGridSize);
-let vGrid = emptyGrid(vGridSize);
-
-setElem = (g, x, y, val) => {
+setCell = (g, x, y, val) => {
     x = ((x % gridWidth) + gridWidth) % gridWidth;
     y = ((y % gridHeight) + gridHeight) % gridHeight;
     g[y * gridWidth + x] = val;
 }
 
-getElem = (g, x, y) => {
+getCell = (g, x, y) => {
     x = ((x % gridWidth) + gridWidth) % gridWidth;
     y = ((y % gridHeight) + gridHeight) % gridHeight;
     return g[y * gridWidth + x];
 }
 
-// sets 4 vectors adjacent to cell (i, j)
-getCellVectors = (i, j, uL, vD, uR, vU) => {
-    setElem(uGrid, i, j, uL);
-    setElem(vGrid, i, j, vD);
-    setElem(uGrid, i+1, j, uR);
-    setElem(vGrid, i, j+1, vU);
-}
+// Simulation Code
 
-// returns 4 vectors adjacent to cell (i, j)
-getCellVectors = (i, j) => {
-    return {
-        uLeft: getElem(uGrid, i, j),
-        vDown: getElem(vGrid, i, j),
-        uRight: getElem(uGrid, i+1, j),
-        vUp: getElem(vGrid, i, j+1)
-    };
-}
 
-function updateVelocity() {
-    //
-}
 
-function divergence() {
-    // divergence, outflow, incompressibility
-}
+// Sim Loop Functions
 
-function moveVelocity() {
-    // advection
+function drawCell(x, y, val) {
+    ctx.fillStyle = "#" + val.toString(16);
+    ctx.fillRect(x*cellSize, cnv.height - y*cellSize, cellSize, cellSize);
 }
-
-// Simulation Loop Functions
 
 function render() {
     ctx.clearRect(0, 0, cnv.width, cnv.height);
 
-    // render elements
+    // render grid cells
+    for (let y = 0; y < gridHeight; ++y) {
+        for (let x = 0; x < gridWidth; ++x) {
+            drawCell(x, y, getCell(grid, x, y));
+        }
+    }
 }
 
+// simulate fluid
 function simulate() {
-    // simulate fluid
+    // generate achromatic palette (just visualizing grid for now)
+    let palette = 0x000000;
+    let count = 0;
+
+    for (let y = 0; y < gridHeight; ++y) {
+        for (let x = 0; x < gridWidth; ++x) {
+            setCell(grid, x, y, palette);
+            let tri = (palette & 0xff);
+            if (count % 30 == 0) tri += 0x02;
+            palette = (tri << 16) | (tri << 8) | tri;
+            count++;
+        }
+    }
 }
 
 function update() {
