@@ -105,20 +105,35 @@ function density2color(density) {
     return (tri << 16) | (tri << 8) | tri;
 }
 
-function advectVelocity(x, y) {
+// move velocities within grid/field
+// TODO: doesn't actually work
+function advectVelocities() {
+    u_field_prev = u_field;
+    v_field_prev = v_field;
+
     for (let y = 1; y < gridHeight-1; ++y) {
         for (let x = 1; x < gridWidth-1; ++x) {
             if (getCell(solids, x, y) == 1) {
+                // get previous velocity's on-screen position
                 const u_coord_x = x*cellSize - (0.5*cellSize);
                 const v_coord_y = y*cellSize - (0.5*cellSize);
-                const u_prev_coord_x = u_coord_x - dt*getCell(u_field, x, y);
-                const v_prev_coord_y = v_coord_y - dt*getCell(v_field, x, y);
+                const u_prev_coord_x = u_coord_x - dt*getCell(u_field_prev, x, y);
+                const v_prev_coord_y = v_coord_y - dt*getCell(v_field_prev, x, y);
+
+                const vel_prev = interpolateVelocity(u_prev_coord_x, v_prev_coord_y);
+                setCell(u_field, x, y, vel_prev[0]);
+                setCell(v_field, x, y, vel_prev[1]);
             }
         }
     }
 }
 
+// unoptimized, task for future me
 function interpolateVelocity(coord_x, coord_y) {
+    // vel1  |  vel2
+    // ------|------
+    // vel3  |  vel4
+
     // find vel1, vel2, vel3, vel4 indices (x, y)
     const vel1_x = Math.floor((coord_x - cellSize/2) / cellSize);
     const vel1_y = Math.ceil((coord_y - cellSize/2) / cellSize);
@@ -146,19 +161,33 @@ function interpolateVelocity(coord_x, coord_y) {
     const vel4_v = getCell(v_field, vel4_x, vel4_y);
 
     // calc vel1, vel2, vel3, vel4 coords
+    // (only 2 of these are actually needed)
     const vel1_coord_x = vel1_x*cellSize + cellSize/2;
-    const vel1_coord_y = vel1_y*cellSize + cellSize/2;
+    // const vel1_coord_y = vel1_y*cellSize + cellSize/2;
 
-    const vel2_coord_x = vel2_x*cellSize + cellSize/2;
-    const vel2_coord_y = vel2_y*cellSize + cellSize/2;
+    // const vel2_coord_x = vel2_x*cellSize + cellSize/2;
+    // const vel2_coord_y = vel2_y*cellSize + cellSize/2;
 
-    const vel3_coord_x = vel3_x*cellSize + cellSize/2;
+    // const vel3_coord_x = vel3_x*cellSize + cellSize/2;
     const vel3_coord_y = vel3_y*cellSize + cellSize/2;
 
-    const vel4_coord_x = vel4_x*cellSize + cellSize/2;
-    const vel4_coord_y = vel4_y*cellSize + cellSize/2;
+    // const vel4_coord_x = vel4_x*cellSize + cellSize/2;
+    // const vel4_coord_y = vel4_y*cellSize + cellSize/2;
 
     // weight vel1, vel2, vel3, vel4; average them; return;
+    const dx = coord_x - vel1_coord_x;
+    const dy = coord_y - vel3_coord_y;
+    const wx = dx / cellSize;
+    const wy = dy / cellSize;
+    const wx_inv = 1 - wx;
+    const wy_inv = 1 - wy;
+
+    const u_prev = vel1_u*wx_inv*wy     + vel2_u*wx*wy
+                 + vel3_u*wx_inv*wy_inv + vel4_u*wx*wy_inv;
+    const v_prev = vel1_v*wx_inv*wy     + vel2_v*wx*wy
+                 + vel3_v*wx_inv*wy_inv + vel4_v*wx*wy_inv;
+    
+    return [u_prev, v_prev];
 }
 
 // --- SIM LOOP FUNCTIONS ---
@@ -238,7 +267,7 @@ function simulate() {
 
     // addForces();
     solveDivergence();
-    // advectVelocities();
+    advectVelocities();
 }
 
 function update() {
