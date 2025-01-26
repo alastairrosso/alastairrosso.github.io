@@ -45,7 +45,7 @@ getVCell = (fd, x, y) => fd[y * v_field_width + x];
 // --- SIMULATION CODE ---
 
 const dt = 1 / 60.0; // delta t = time step
-const overrelax = 1.9;
+const overrelax = 1.5;
 
 // maintain div(u) = 0
 function solveDivergence() {
@@ -56,10 +56,10 @@ function solveDivergence() {
         for (let x = 1; x < fieldWidth-1; ++x) {
             if (getCell(solids, x, y) == 0) continue;
 
-            const u_left  = getUCell(u_field_next, x,   y);
-            const u_right = getUCell(u_field_next, x+1, y);
-            const v_up    = getVCell(v_field_next, x,   y+1);
-            const v_down  = getVCell(v_field_next, x,   y);
+            const u_left  = getUCell(u_field, x,   y);
+            const u_right = getUCell(u_field, x+1, y);
+            const v_up    = getVCell(v_field, x,   y+1);
+            const v_down  = getVCell(v_field, x,   y);
             const div = overrelax * (u_right - u_left + v_up - v_down);
             
             const cell_left  = getCell(solids, x-1, y);
@@ -106,18 +106,121 @@ function density2color(density) {
 
 // move velocities within field
 function advectVelocities() {
-    
+    u_field_next.set(u_field);
+    v_field_next.set(v_field);
 
     for (let y = 1; y < fieldHeight-1; ++y) {
         for (let x = 1; x < fieldWidth-1; ++x) {
             if (getCell(solids, x, y) == 0) continue;
+            
+            if (getCell(solids, x-1, y) != 0 && x < u_field_width-1) {
+                // u component
+                // calc u's vertical component
+                const u_v1 = getVCell(v_field, x-1, y+1);
+                const u_v2 = getVCell(v_field, x,   y+1);
+                const u_v3 = getVCell(v_field, x-1, y);
+                const u_v4 = getVCell(v_field, x,   y);
+                const u_v = 0.25 * (u_v1 + u_v2 + u_v3 + u_v4);
+
+                // calc previous position = pos - dt * vel
+                const u_Cx = x*cellSize;
+                const u_Cy = y*cellSize;
+                const u_prev_Cx = u_Cx - getUCell(u_field, x, y);//*dt;
+                const u_prev_Cy = u_Cy - u_v;//*dt;
+
+                // find four surrounding velocities and
+                // calc weighted average of previous velocity
+                const u_prev_vel = interpolateVelU(u_prev_Cx, u_prev_Cy);
+                setUCell(u_field_next, x, y, u_prev_vel);
+            }
+
+            if (getCell(solids, x-1, y) != 0 && x < u_field_width-1) {
+                // v component
+                // calc v's horizontal component
+                const v_u1 = getUCell(u_field, x,   y);
+                const v_u2 = getUCell(u_field, x+1, y);
+                const v_u3 = getUCell(u_field, x,   y-1);
+                const v_u4 = getUCell(u_field, x+1, y-1);
+                const v_u = 0.25 * (v_u1 + v_u2 + v_u3 + v_u4);
+
+                // calc previous position = pos - dt * vel
+                const v_Cx = x*cellSize;
+                const v_Cy = y*cellSize;
+                const v_prev_Cx = v_Cx - v_u;//*dt;
+                const v_prev_Cy = v_Cy - getVCell(v_field, x, y);//*dt;
+
+                // find four surrounding velocities and
+                // calc weighted average of previous velocity
+                const v_prev_vel = interpolateVelV(v_prev_Cx, v_prev_Cy);
+                setVCell(v_field_next, x, y, v_prev_vel);
+            }
         }
     }
+
+    u_field.set(u_field_next);
+    v_field.set(v_field_next);
 }
 
-// unoptimized, task for future me
-function interpolateVelocity(coord_x, coord_y) {
-    //
+function interpolateVelU(coord_x, coord_y) {
+    const halfCellSize = 0.5*cellSize;
+
+    const vel1_x = Math.floor((coord_x - halfCellSize) / cellSize);
+    const vel1_y = Math.ceil(coord_y / cellSize);
+
+    const vel2_x = Math.ceil((coord_x - halfCellSize) / cellSize);
+    const vel2_y = Math.ceil(coord_y / cellSize);
+
+    const vel3_x = Math.floor((coord_x - halfCellSize) / cellSize);
+    const vel3_y = Math.floor(coord_y / cellSize);
+    
+    const vel4_x = Math.ceil((coord_x - halfCellSize) / cellSize);
+    const vel4_y = Math.floor(coord_y / cellSize);
+
+    // find dx and dy (x and y distances between velocities)
+    const dx = coord_x - vel3_x*cellSize + halfCellSize;
+    const dy = coord_y - vel3_y*cellSize;
+
+    // weights for averaging
+    const w_right = dx / cellSize;
+    const w_left = 1 - w_right;
+    const w_up = dy / cellSize;
+    const w_down = 1 - w_up;
+
+    const u_vel = getUCell(u_field, vel1_x, vel1_y)*w_left*w_up   + getUCell(u_field, vel2_x, vel2_y)*w_right*w_up
+                + getUCell(u_field, vel3_x, vel3_y)*w_left*w_down + getUCell(u_field, vel4_x, vel4_y)*w_right*w_down;
+
+    return u_vel;
+}
+
+function interpolateVelV(coord_x, coord_y) {
+    const halfCellSize = 0.5*cellSize;
+
+    const vel1_x = Math.floor(coord_x / cellSize);
+    const vel1_y = Math.ceil((coord_y - halfCellSize) / cellSize);
+
+    const vel2_x = Math.ceil(coord_x / cellSize);
+    const vel2_y = Math.ceil((coord_y - halfCellSize) / cellSize);
+
+    const vel3_x = Math.floor(coord_x / cellSize);
+    const vel3_y = Math.floor((coord_y - halfCellSize) / cellSize);
+    
+    const vel4_x = Math.ceil(coord_x / cellSize);
+    const vel4_y = Math.floor((coord_y - halfCellSize) / cellSize);
+
+    // find dx and dy (x and y distances between velocities)
+    const dx = coord_x - vel3_x*cellSize;
+    const dy = coord_y - vel3_y*cellSize + halfCellSize;
+
+    // weights for averaging
+    const w_right = dx / cellSize;
+    const w_left = 1 - w_right;
+    const w_up = dy / cellSize;
+    const w_down = 1 - w_up;
+
+    const v_vel = getVCell(v_field, vel1_x, vel1_y)*w_left*w_up   + getVCell(v_field, vel2_x, vel2_y)*w_right*w_up
+                + getVCell(v_field, vel3_x, vel3_y)*w_left*w_down + getVCell(v_field, vel4_x, vel4_y)*w_right*w_down;
+
+    return v_vel;
 }
 
 // --- SIM LOOP FUNCTIONS ---
@@ -145,8 +248,7 @@ function initSim() {
 
     // turbine
     setUCell(u_field, 1, 15, 10.0);
-    // setCell(u_field, fieldWidth-2, 35, -10.0);
-    // setCell(v_field, fieldWidth-2, 35,   5.0);
+    setUCell(u_field, 20, 35, 10.0);
 }
 
 function drawCell(x, y, val) {
