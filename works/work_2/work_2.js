@@ -3,6 +3,7 @@ const ctx = cnv.getContext("2d");
 const workOptions = document.getElementById("work-options").getBoundingClientRect();
 
 const cellSize = 10;
+const halfCellSize = 0.5*cellSize;
 
 let cnvWidth = window.innerWidth - workOptions.width;
 cnv.width = cnvWidth - (Math.floor(cnvWidth) % cellSize);
@@ -84,15 +85,7 @@ function solveDivergence() {
     v_field.set(v_field_next);
 }
 
-function calcDensity(x, y) {
-    const u_left  = getUCell(u_field, x,   y);
-    const u_right = getUCell(u_field, x+1, y);
-    const v_up    = getVCell(v_field, x,   y+1);
-    const v_down  = getVCell(v_field, x,   y);
-
-    const u = 0.5 * (u_left + u_right);
-    const v = 0.5 * (v_up + v_down);
-
+function calcDensity(u, v) {
     const res = Math.hypot(u, v);
     const u_norm = Math.sign(u) * Math.min(Math.abs(u / res), Math.abs(u));
     const v_norm = Math.sign(v) * Math.min(Math.abs(v / res), Math.abs(v));
@@ -125,8 +118,8 @@ function advectVelocities() {
                 // calc previous position = pos - dt * vel
                 const u_Cx = x*cellSize;
                 const u_Cy = y*cellSize;
-                const u_prev_Cx = u_Cx - getUCell(u_field, x, y);//*dt;
-                const u_prev_Cy = u_Cy - u_v;//*dt;
+                const u_prev_Cx = u_Cx - getUCell(u_field, x, y)*dt;
+                const u_prev_Cy = u_Cy - u_v*dt;
 
                 // find four surrounding velocities and
                 // calc weighted average of previous velocity
@@ -146,8 +139,8 @@ function advectVelocities() {
                 // calc previous position = pos - dt * vel
                 const v_Cx = x*cellSize;
                 const v_Cy = y*cellSize;
-                const v_prev_Cx = v_Cx - v_u;//*dt;
-                const v_prev_Cy = v_Cy - getVCell(v_field, x, y);//*dt;
+                const v_prev_Cx = v_Cx - v_u*dt;
+                const v_prev_Cy = v_Cy - getVCell(v_field, x, y)*dt;
 
                 // find four surrounding velocities and
                 // calc weighted average of previous velocity
@@ -162,8 +155,6 @@ function advectVelocities() {
 }
 
 function interpolateVelU(coord_x, coord_y) {
-    const halfCellSize = 0.5*cellSize;
-
     const vel1_x = Math.floor((coord_x - halfCellSize) / cellSize);
     const vel1_y = Math.ceil(coord_y / cellSize);
 
@@ -193,8 +184,6 @@ function interpolateVelU(coord_x, coord_y) {
 }
 
 function interpolateVelV(coord_x, coord_y) {
-    const halfCellSize = 0.5*cellSize;
-
     const vel1_x = Math.floor(coord_x / cellSize);
     const vel1_y = Math.ceil((coord_y - halfCellSize) / cellSize);
 
@@ -223,11 +212,41 @@ function interpolateVelV(coord_x, coord_y) {
     return v_vel;
 }
 
+function advectDensities() {
+    for (let y = 1; y < fieldHeight-1; ++y) {
+        for (let x = 1; x < fieldWidth-1; ++x) {
+            if (getCell(solids, x, y) == 0) continue;
+
+            const u_left  = getUCell(u_field, x,   y);
+            const u_right = getUCell(u_field, x+1, y);
+            const v_up    = getVCell(v_field, x,   y+1);
+            const v_down  = getVCell(v_field, x,   y);
+            const u = 0.5 * (u_left + u_right);
+            const v = 0.5 * (v_up + v_down);
+
+            setCell(field, x, y, Math.hypot(u, v));
+            continue;
+            // TODO: sort out the whole blowing up issue
+            //       also find better way of interpreting density as color
+
+            const Cx = x*cellSize + halfCellSize;
+            const Cy = y*cellSize + halfCellSize;
+            const prev_Cx = Cx - dt*u;
+            const prev_Cy = Cy - dt*v;
+
+            const prev_u = interpolateVelU(prev_Cx, prev_Cy);
+            const prev_v = interpolateVelV(prev_Cx, prev_Cy);
+            setCell(field, x, y, density2color(calcDensity(prev_u, prev_v)));
+        }
+    }
+}
+
 // --- SIM LOOP FUNCTIONS ---
 
 // initialize simulator conditions
 function initSim() {
     // set solids to 1s
+    // TODO: replace with fill()
     for (let i = 0; i < solids.length; ++i)
         solids[i] = 1;
 
@@ -246,9 +265,9 @@ function initSim() {
         setCell(field,   fieldWidth - 1, y, 0x000000);
     }
 
-    // turbine
     setUCell(u_field, 1, 15, 10.0);
     setUCell(u_field, 20, 35, 10.0);
+    setVCell(v_field, 20, 35, -8.0);
 }
 
 function drawCell(x, y, val) {
@@ -275,14 +294,8 @@ function render() {
 function simulate() {
     // addForces();
     solveDivergence();
-    // advectVelocities();
-
-    // calculate, store densities
-    for (let y = 1; y < fieldHeight-1; ++y) {
-        for (let x = 1; x < fieldWidth-1; ++x) {
-            setCell(field, x, y, density2color(calcDensity(x, y)));
-        }
-    }
+    advectVelocities();
+    advectDensities();
 }
 
 function update() {
@@ -305,7 +318,7 @@ function togglePause() {
     }
 }
 
-const eventKeyDown = event => {
+document.addEventListener("keydown", event => {
     switch (event.key) {
         case 'p':
             togglePause();
@@ -315,8 +328,8 @@ const eventKeyDown = event => {
             render();
             break;
     }
-};
+});
 
 initSim();
-document.addEventListener('keydown', eventKeyDown);
+// document.addEventListener('keydown', eventKeyDown);
 render(); // intial render, first update triggered when simulation unpaused
