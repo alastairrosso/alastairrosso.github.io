@@ -1,5 +1,5 @@
 ---
-title: Eulerian Fluid Physics
+title: Eulerian Fluid Simulator
 ---
 
 <link rel="stylesheet" href="work_2.css">
@@ -10,6 +10,11 @@ title: Eulerian Fluid Physics
 
         <button class="work-button" onclick="togglePause();" id="pause-button">Start</button>
         <button class="work-button" onclick="toggleFrame();">Frame</button>
+
+        <p id="v_up" style="text-align: center;">up</p>
+        <p id="u_left" style="text-align: left;">left</p>
+        <p id="u_right" style="text-align: right;">right</p>
+        <p id="v_down" style="text-align: center;">down</p>
     </div>
 
     <canvas id="myCanvas" oncontextmenu="return false;"></canvas>
