@@ -39,12 +39,8 @@ const IND_V = (x, y) => y * FIELD_WIDTH + x;
 const dt = 1 / 60.0; // delta t = time step
 const overrelax = 1.9;
 
-// add forces (gravity mainly)
+// add forces
 function addForces() {
-    for (let i = 0; i < vFieldSize; ++i) {
-        v_field[i] = v_field[i] * 9.8*dt;
-    }
-
     v_field[IND_V(35, 1)] = 20.0;
     v_field[IND_V(50, FIELD_HEIGHT-1)] = 15.0;
 }
@@ -143,7 +139,11 @@ function initSim() {
     // initial velocities
     u_field[IND_U(1, 25)] = 10.0;
     // u_field[IND_U(FIELD_WIDTH-1, 20)] = 20.0;
-    
+
+    // gravity
+    // for (let i = 0; i < vFieldSize; ++i) {
+    //     v_field[i] -= 9.8*dt;
+    // }
 }
 
 function drawCell(x, y, val) {
