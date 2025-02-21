@@ -1,9 +1,9 @@
 - name: Cellular Automata Simulator
   link: /works/work_1/work_1.html
   image: /assets/images/w1-tumbler.gif
-# - name: Eulerian Fluid Physics (postponed)
-#   link: /works/work_2/work_2.html
-#   image: /
+- name: Eulerian Fluid Simulator
+  link: /works/work_2/work_2.html
+  image: /assets/images/work-blank.jpg
 - name: Centroid Calculation via Trapezoids
   link: /works/work_3/work_3.html
   image: /assets/images/w3-calculator.gif
