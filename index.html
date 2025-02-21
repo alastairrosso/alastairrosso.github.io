@@ -1,13 +1,19 @@
 ---
-title: Alastairrosso - Home
+title: AY Rosso - Home
 ---
 
 <style>
     #home-section {
-        background-color: #242424;
+        height: 100%;
+    }
+
+    #contents-section {
+        background-color: rgba(75, 75, 75, 0.95);
         color: white;
         height: 100%;
-        padding-left: 50px;
+        margin-left: 15%;
+        margin-right: 15%;
+        padding: 10px;
     }
 
     ul > li {
@@ -20,40 +26,49 @@ title: Alastairrosso - Home
         width: min-content;
     }
 
+    #works-list {
+        padding: 0px;
+        padding-left: 10%;
+        padding-right: 10%;
+    }
+
     .work-listing {
         border-color: white;
         border-radius: 15px;
         border-style: solid;
         border-width: 2px;
-        color: white;
         font-weight: bold;
+        font-size: 14px;
         padding-bottom: 10px;
         text-align: center;
     }
 
     .work-listing:hover {
-        background-color: #484848;
+        background-color: #444444;
     }
 
     .work-image {
-        border-top-left-radius: 15px;
-        border-top-right-radius: 15px;
+        border-top-left-radius: 13px;
+        border-top-right-radius: 13px;
+        width: 250px;
     }
 </style>
 
 <div id="home-section">
-    <h1>Welcome!</h1>
-    <h3>Check out some of my works (and works in progress):</h3>
-    <ul>
-        {% for work in site.data.works %}
-        <li>
-            <a href="{{ work.link }}">
-                <div class="work-listing">
-                    <img src="{{ work.image }}" class="work-image" width="350" />
-                    <span>{{ work.name }}</span>
-                </div>
-            </a>
-        </li>
-        {% endfor %}
-    </ul>
+    <div id="contents-section">
+        <h1 style="margin-top: 0px;">Welcome!</h1>
+        <h3>Check out some of my works (and works in progress):</h3>
+        <ul id="works-list">
+            {% for work in site.data.works %}
+            <li>
+                <a href="{{ work.link }}">
+                    <div class="work-listing">
+                        <img src="{{ work.image }}" class="work-image" />
+                        <span>{{ work.name }}</span>
+                    </div>
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
 </div>
